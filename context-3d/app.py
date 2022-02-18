@@ -23,28 +23,28 @@ platform = query['__platform__'][0] if '__platform__' in query else 'web'
 @st.cache(suppress_st_warning=True)
 def load_context(lat, lon, zoom):
     x, y = deg2num(lat, lon, zoom)
-    DATA_URL = f"https://data.osmbuildings.org/0.2/anonymous/tile/{zoom}/{x}/{y}.json"
+    DATA_URL = f'https://data.osmbuildings.org/0.2/anonymous/tile/{zoom}/{x}/{y}.json'
 
     text_content, lbt_text_content = None, None
-    out_city = f"./data/{lat}_{lon}_{zoom}.json"
-    out_lbt_city = f"./data/lbt_{lat}_{lon}_{zoom}.json"
+    out_city = f'./data/{lat}_{lon}_{zoom}.json'
+    out_lbt_city = f'./data/lbt_{lat}_{lon}_{zoom}.json'
     pathlib.Path('./data').mkdir(parents=True, exist_ok=True)
     try:
         req = requests.get(DATA_URL)
-        with open(out_city, "w") as f:
+        with open(out_city, 'w') as f:
             text_content = json.dumps(req.json())
     except requests.exceptions.RequestException as e:
-        st.error(f"{e}")
+        st.error(f'{e}')
     except Exception as e:
-        st.error("Geojson not found.")
+        st.error('Geojson not found.')
 
     json_out = None
     try:
         json_out = get_json_array(req.json(), lat, lon)
-        with open(out_lbt_city, "w") as f:
+        with open(out_lbt_city, 'w') as f:
             lbt_text_content = json_out
     except Exception as e:
-        st.error("Convert to LBT failed.")
+        st.error('Convert to LBT failed.')
     return DATA_URL, text_content, lbt_text_content, out_city, out_lbt_city, json_out
 
 
@@ -56,25 +56,25 @@ cities = {
     'London': [51.5072, -0.1276]
 }
 
-option = st.selectbox("Samples",  cities.keys())
-st.write(f"Lat: {cities[option][0]} ",
-         f"Lon: {cities[option][1]}")
+option = st.selectbox('Samples',  cities.keys())
+st.write(f'Lat: {cities[option][0]} ',
+         f'Lon: {cities[option][1]}')
 
 lat = st.number_input(
-    "Latitude (deg)",
+    'Latitude (deg)',
     min_value=-90.0,
     max_value=90.0,
     value=cities[option][0], step=0.1,
-    format="%f")
+    format='%f')
 lon = st.number_input(
-    "Longitude (deg)",
+    'Longitude (deg)',
     min_value=-180.0,
     max_value=180.0,
     value=cities[option][1],
     step=0.1,
-    format="%f")
+    format='%f')
 zoom = st.number_input(
-    "Zoom (15 or 16)",
+    'Zoom (15 or 16)',
     min_value=15,
     max_value=16,
     value=15,
@@ -99,10 +99,10 @@ if platform == 'Rhino' and json_out:
     # user color
     def get_colored_geometry_json_strings(geometries: dict, 
         hex_color: str) -> dict:
-        """
+        '''
         Add colors to dict. So rhino will know what color 
         to use with solids.
-        """
+        '''
         rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
         geometry_dicts = [g for g in geometries]
         for d in geometry_dicts:
@@ -123,15 +123,15 @@ if platform == 'Rhino' and json_out:
     #          source units
     button.send('BakeGeometry',
         colored_geometries, 'my-secret-key', 
-        options={"layer":"StreamlitLayer",
-            "units": "Meters"},
+        options={'layer':'StreamlitLayer',
+            'units': 'Meters'},
         key='my-secret-key')
 
     # display pollination checkbox
     inputs.send(colored_geometries, 
         'my-super-secret-key', 
-        options={"layer":"StreamlitLayer", 
-            "units": "Meters"}, 
+        options={'layer':'StreamlitLayer', 
+            'units': 'Meters'}, 
         key='my-super-secret-key')
 
 st.pydeck_chart(pdk.Deck(map_style='mapbox://styles/mapbox/light-v9',
